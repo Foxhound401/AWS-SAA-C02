@@ -75,3 +75,40 @@ EC2 User Data
 ..- Downloading common files from the internet
 
 - EC2 User Data Script runs with the root user
+
+### EC2 Instance Types
+
+#### General Purpose - t tier
+
+- Great for a diversity of workloads such as web servers or code repositories
+- Balance between:
+..- Compute
+..- Memory
+..- Networking
+- In the course, we will be using the t2.micro which is a General Purpose EC2 instance
+
+#### Compute Optimized - c tier
+- Great for compute-intensive tasks that require high performance processors:
+- Batch processing workloads
+- Meida transcoding
+- High performance web servers
+- High performance computing (HPC)
+- Scientific modeling & machine learning
+- Dedicated gaming servers
+
+#### Memory Optimized - m tier
+- Fast performance workloads that process large data sets in Memory
+- Use cases:
+..- High performance, relation/non-relation databases
+..- Distributed web scale cache stores
+..- In-memory databases optimized for BI (business intelligence)
+..- Applications performing real-time processing of big unstructured data
+
+#### Storage Optimized - i tier
+- Great for storage-intensive tasks that require high, sequential read and write access to large data sets on local storage
+- Use cases:
+..- High frequency onlikne transaction processing (OLTP) systems
+..- Relational & NoSQL databases
+..- Cache for in-memory databases (for example, Redis)
+..- Data warehousing applications
+..- Distributed file systems
