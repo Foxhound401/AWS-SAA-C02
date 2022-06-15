@@ -184,3 +184,26 @@ EC2 User Data
 
 - Not suitable for critical jobs or databases
 
+#### Dedicated Hosts
+- A Physical server with EC2 instance capacity fully dedicated to your use 
+- Allows you addresss compliance requirements and use your existing server-bound software licenses (per-socket, per-core, pe--VM software licenses)
+- Purchasing Options:
+..- On-Demand - pay per second for active Dedicated Host
+..- Reserved - 1 or 3 years (No Upfront, Partial Upfront, all Upfornt)
+- The most expensive option
+- Useful for software that have complicated licensing model (BYOL - Bring Your Own License)
+- Or for companies that have strong regulatory or compliance needs
+
+#### Dedicated Instances
+- Instances run on hardware that's dedicated to you
+- May share hardware with other instances in same account
+- No control over instance placement (can move hardware after Stop / Start)
+
+
+#### Capacity Reservations
+- Reserve On-Demand instances capacity in a specific AZ for any duration 
+- You always have access to EC2  when you need it
+- No time commitment ( create/ cancel anytime), no billind discoutns
+- Bomcine with Regional Reserved Instances and Savings Plans to benefit from billind discounts
+- You're charged at On-Demand rate whether you run instances or not
+- Suitable for short-term uninterrupted workloads that neesd to be in a specific AZ
