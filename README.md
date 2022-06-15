@@ -112,3 +112,75 @@ EC2 User Data
 ..- Cache for in-memory databases (for example, Redis)
 ..- Data warehousing applications
 ..- Distributed file systems
+
+#### Security Groups
+
+- Security Groups are the fundamental of network security in AWS
+- They control how traffic is allowed into or out of the EC2 instnaces
+- Security groups only contain allow rules
+- Security groups rules can reference by IP or by security group
+
+- Acting as a "firewall" on EC2 instances
+- They regulate:
+..- Access to ports
+..- Authoried IP ranges - IPv4 and IPv6 
+..- Control of inbound network (from toher to the insatnce)
+..- Control of outbound network (from the instance to other)
+
+- Can be attatch to multiple instances
+- Locked down to a region / VPC combination
+
+### Purchasing Options
+- On-Demand Instances -- short workload, predictable pricing, pay by second
+- Reserved (1 & 3 years)
+..- Reserved Instances - long workloads
+..- Convertible Reserved Instances - long workloads with flexible instances
+- Savings Plans (1 & 3 years) -- commitment to an amount of usage, long workloads
+- Spot Instances -- short workloads, cheap, can lose instances (less Reliable)
+- Dedicated Hosts -- book an entire physical server, control instance placement
+- Dedicated Instances -- no other customers will share your hardware
+- Capacity Reservations -- reserve capacity in a specific AZ for any duration
+
+#### On Demand
+- Pay for what you use:
+..- Linux or Windows - biling per second, after the first minute
+..- All other operating systems - billing per hour
+- Has the highest cost but no upfront payment
+- No long-term commitment
+- Recommended for short-term and un-interrupted workloads, where you can't predict how the application will behave
+#### Reserved Instances
+- Up to 72% discount compared to On-demand
+- You reserve a specific instance attributes ( Instance Type, Region, Tenacy, OS)
+- Reservation Period -- 1 Year (+discount) or 3 years (+++discount)
+- Payment Options - No Upfront(+), Partial Upfront (++), All upfront (+++)
+- Recommended for steady-state ussage applications (think database)
+- You can buy and sell in the Reserved Instance Marketplace
+
+- Convertible Reserved Instance
+..- Can change the EC2 instance type, instance family, OS, scope and tenancy
+..- Up to 66% discount
+
+#### Savings Plans
+- Get a discount based on long-term usage (up to 72% - same as Reserved)
+- Commit to a certain type of usage ($10/hour for 1 or 3 years)
+- Usage beyond EC2 Saving Plans is billed at the On-Demand price
+- Locked to a spacific instance family & AWS region (e.g., M5 in us-east-1)
+- Flexible across:
+..- Istance Size (e.g., m5.xlarge, m5.2xlarge)
+..- OS (e.g., Linux, Windows)
+..- Tenancy (Host, Dedicated, Default)
+
+#### Spot Instance
+- Can get discount of up to 90% compared to On-Demand
+- Instances that you can "lose" at any point of time if your max price is less than the current spot price
+- The MOST cost-efficient instances in AWS
+
+- Useful for workloads that are resilient to failure
+..- Batch jobs
+..- Data analysis
+..- Image processing
+..- Any distributed workloads
+..- Workloads with flexible start and end time
+
+- Not suitable for critical jobs or databases
+
