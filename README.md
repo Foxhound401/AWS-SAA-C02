@@ -13,6 +13,8 @@ Weakness:
 ..- I understand port
 ..- I understand tcp, inbound, outbound connection. 
 
+NAT gateway if don't know how to use will cost you fortune on aws 
+
 - Slow learner, have to reread a lot and take a lot of notes to understand
 => then why the heck you want it in one month.  \(T^T)/
 
@@ -39,3 +41,37 @@ Weakness:
 - Use Access Keys for Programmatic Access (CLI/SDK)
 - Audit permissions of your account with the IAM Credentials Report
 - Never share IAM users & Access Keys
+
+## Fundamentals
+
+### Amazon ec2
+
+- EC2 is one of the most popular of AWS's offering
+- EC2 = Elastic Compute Cloud = Infrastructure as a Service
+- It mainly consists in the capability of:
+..- Renting virutal machines (EC2)
+..- Storing data on virtual drives (EBS)
+..- Distributing load across machines (ELB)
+..- Scaling the services using an auto-scaling group (ASG)
+
+### EC2 sizing & configuration options
+- OS: linux, windows or MacOS
+- how much computer power & cores (CPU)
+- how much random-access memory (RAM)
+- How much storage space:
+..- Network-attached (EBS & EFS)
+..- Hardware (EC2 instance store)
+- Network card: speed of the card, Public IP Address
+- Firewall rules: security group
+- Bootstrap script (configure at first launch): EC2 User Data
+
+EC2 User Data
+- It is possible to bootstrap our instances using an EC2 User data script.
+- bootstraping means lauching commands when a machine starts
+- That script is only run once at the instance first start
+- EC2 User dat ais use dto automate boot tasks such as:
+..- Installing updates
+..- Installing software
+..- Downloading common files from the internet
+
+- EC2 User Data Script runs with the root user
