@@ -319,7 +319,7 @@ This is the part in my knowledge that I least certain, and I want to understand 
 ..- Spread --spreads instances across underlying hardware (max 7 instances per group per AZ) -- critical applications
 ..- Partition -- spreads instances across many different partitions (which rely on different sets of racks) with an AZ. Scales to 100s of EC2 instances per group (Hadoop, Cassandra, Kafka)
 
-```bash
+```
   .-----------------------------------------------------.
   |                                                     |
   |                                                     |
