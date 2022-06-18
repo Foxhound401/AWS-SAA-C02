@@ -271,3 +271,41 @@ Create Request------->| Launch specification                |                   
                                   Request Failed
 
 ```
+
+
+If you want to cancel the spot request, It's need to be in **open, active, or disabled**
+
+- Spot instance will not be terminate. I have to terminate it myself. Event if I cancel the spot request. The instance will still be running and need manual termination
+- Not AWS responsibility to terminate them
+
+
+First is to cancel the spot request -> then terminate the instances
+
+Or else the instance will be create because **spot request** detect that the replicas have not met
+
+
+### Spot fleets
+- Spot fleets = set of Spot Instances + (optional) On-Demand instances
+- The spot Fleet will try to meet the target capacity with price constrains
+..- Define possible launch pools: instance type (m5.large), OS, Avaialbility Zone
+..- Can have multiple launch pools, so that the fleet can choose
+..- Spot fleet stops launching istnaces when reaching capacity or max cost
+- Strategies to allocate Spot Instances:
+..- LowestPrice: from the pool with the lowest price (cost optimization, short workload)
+..- diversified: distributed across all pools (great for availability, long workloads)
+..- capacityOptimized: pool with the optimal capacity for the number of instances
+
+- Spot fleet allow us to automatically request Spot Instances with the lowest price
+
+
+#### Spot lab
+- pricing history
+- request spot instance
+..- Manual configure
+..- Use a launch template
+
+
+## Networking ~ yay
+
+This is the part in my knowledge that I least certain, and I want to understand it better
+
