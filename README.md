@@ -563,7 +563,16 @@ Good to know
   ..- An AWS Marketplace AMI: an AMI someone else made (and potentially sells)
 
 #### AMI process (from an EC2 instance)
-
+```
+.---------------.                                              .---------------.
+|  us-east-1a   |                                              |  us-east-1b   |
+|               |                .------------.                |               |
+|  .----------. |                | Custom AMI |  Launch        |  .----------. |
+|  | instance |----Create AMI--->|            |--from AMI----->|  | instance | |
+|  '----------' |                '------------'                |  '----------' |
+|               |                                              |               |
+'---------------'                                              '---------------'
+```
 - Start an EC2 instance and customize it
 - Stop the instance (for data integrity)
 - Build an AMI -- this will also create EBS snapshots
