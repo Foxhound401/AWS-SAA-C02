@@ -3,7 +3,7 @@
 Goal: I want to get the cert in one month
 
 - I have experience with AWS, and have access to resources to test and do hand-on
-- I have strong experience with linux
+- I have strong experience with linux (this mean I can diagnostic and pull my hairs out for a couple of hours and still feel fun)
 - I have strong experience with docker
 - I have strong experience with k8s
 - ~~I know vim, vim will speed up the process 300%~~
@@ -18,6 +18,10 @@ NAT gateway if don't know how to use will cost you fortune on aws
 
 - Slow learner, have to reread a lot and take a lot of notes to understand
   => then why the heck you want it in one month. \(T^T)/
+
+Enough rambling here's the Index
+## Table of Contents - inprogress
+- <a href="#iam">IAM</a>
 
 ## IAM
 
@@ -601,3 +605,13 @@ Good to know
   ..- sc1 (HDD): Lowest cost HDD volume designed for less frequently accessed workloads
 - EBS Volumes are charaterized in Size | Throughput | IOPS (I/O Ops Per Sec)
 - Only gp2/gp3 and io1/io2 can be used as boot volumes
+
+#### General Purpose SSd (gp2/gp3)
+- Cost effective storage, low-latency
+- System boot volumes, Virtual desktops, Development and test environments
+- 1 GiB - 16 TiB
+- gp3:
+  ..- Baseline of 3,000 IOPS and througput of 125 MiB/s
+  ..- Can increase IOPS up to 16,000 and throughput up to 1000 MiB/s independently
+- gp2:
+  ..- 
