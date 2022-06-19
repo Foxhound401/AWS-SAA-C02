@@ -577,3 +577,24 @@ Good to know
 - Stop the instance (for data integrity)
 - Build an AMI -- this will also create EBS snapshots
 - Launch instances from other AMIs
+
+### Local EC2 Instance Store
+- Need better performance than EBS ? 
+- EBS volumes are network drives with good but "limited" performance
+- If you need a high-erpformance hardware disk, use EC2 Instance Store
+
+- Better I/O performance
+- EC2 Instance Store lose theri storage if they're stopped (ephemeral)
+- Good for buffer / cache /scratch data/ temporary content
+- Risk of data loss if hardware fails
+- Backups and Replication are your responsibility
+
+### EBS Volume Type
+- EBS volumes come in 6 types
+..- gp2/gp3 (SSD): General purpose SSD volume that balances price and performance for a wide variety of workloads
+..- io1/io2 (SSD): Highest-performance SSD volume for mission-critical low-latency or high-throughput workloads
+..- st1 (HDD): Low cost HDD volume designed for frequently accessed, throughput-intensive workloads
+..- sc1 (HDD): Lowest cost HDD volume designed for less frequently accessed workloads
+- EBS Volumes are charaterized in Size | Throughput | IOPS (I/O Ops Per Sec)
+- Only gp2/gp3 and io1/io2 can be used as boot volumes
+
