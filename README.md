@@ -563,6 +563,7 @@ Good to know
   ..- An AWS Marketplace AMI: an AMI someone else made (and potentially sells)
 
 #### AMI process (from an EC2 instance)
+
 ```
 .---------------.                                              .---------------.
 |  us-east-1a   |                                              |  us-east-1b   |
@@ -573,13 +574,15 @@ Good to know
 |               |                                              |               |
 '---------------'                                              '---------------'
 ```
+
 - Start an EC2 instance and customize it
 - Stop the instance (for data integrity)
 - Build an AMI -- this will also create EBS snapshots
 - Launch instances from other AMIs
 
 ### Local EC2 Instance Store
-- Need better performance than EBS ? 
+
+- Need better performance than EBS ?
 - EBS volumes are network drives with good but "limited" performance
 - If you need a high-erpformance hardware disk, use EC2 Instance Store
 
@@ -590,11 +593,11 @@ Good to know
 - Backups and Replication are your responsibility
 
 ### EBS Volume Type
+
 - EBS volumes come in 6 types
-..- gp2/gp3 (SSD): General purpose SSD volume that balances price and performance for a wide variety of workloads
-..- io1/io2 (SSD): Highest-performance SSD volume for mission-critical low-latency or high-throughput workloads
-..- st1 (HDD): Low cost HDD volume designed for frequently accessed, throughput-intensive workloads
-..- sc1 (HDD): Lowest cost HDD volume designed for less frequently accessed workloads
+  ..- gp2/gp3 (SSD): General purpose SSD volume that balances price and performance for a wide variety of workloads
+  ..- io1/io2 (SSD): Highest-performance SSD volume for mission-critical low-latency or high-throughput workloads
+  ..- st1 (HDD): Low cost HDD volume designed for frequently accessed, throughput-intensive workloads
+  ..- sc1 (HDD): Lowest cost HDD volume designed for less frequently accessed workloads
 - EBS Volumes are charaterized in Size | Throughput | IOPS (I/O Ops Per Sec)
 - Only gp2/gp3 and io1/io2 can be used as boot volumes
-
