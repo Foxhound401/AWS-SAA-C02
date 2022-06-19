@@ -272,54 +272,51 @@ Create Request------->| Launch specification                |                   
 
 ```
 
-
 If you want to cancel the spot request, It's need to be in **open, active, or disabled**
 
 - Spot instance will not be terminate. I have to terminate it myself. Event if I cancel the spot request. The instance will still be running and need manual termination
 - Not AWS responsibility to terminate them
 
-
 First is to cancel the spot request -> then terminate the instances
 
 Or else the instance will be create because **spot request** detect that the replicas have not met
 
-
 ### Spot fleets
+
 - Spot fleets = set of Spot Instances + (optional) On-Demand instances
 - The spot Fleet will try to meet the target capacity with price constrains
-..- Define possible launch pools: instance type (m5.large), OS, Avaialbility Zone
-..- Can have multiple launch pools, so that the fleet can choose
-..- Spot fleet stops launching istnaces when reaching capacity or max cost
+  ..- Define possible launch pools: instance type (m5.large), OS, Avaialbility Zone
+  ..- Can have multiple launch pools, so that the fleet can choose
+  ..- Spot fleet stops launching istnaces when reaching capacity or max cost
 - Strategies to allocate Spot Instances:
-..- LowestPrice: from the pool with the lowest price (cost optimization, short workload)
-..- diversified: distributed across all pools (great for availability, long workloads)
-..- capacityOptimized: pool with the optimal capacity for the number of instances
+  ..- LowestPrice: from the pool with the lowest price (cost optimization, short workload)
+  ..- diversified: distributed across all pools (great for availability, long workloads)
+  ..- capacityOptimized: pool with the optimal capacity for the number of instances
 
 - Spot fleet allow us to automatically request Spot Instances with the lowest price
 
-
 #### Spot lab
+
 - pricing history
 - request spot instance
-..- Manual configure
-..- Use a launch template
-
+  ..- Manual configure
+  ..- Use a launch template
 
 ## Networking ~ yay
 
 This is the part in my knowledge that I least certain, and I want to understand it better
-
 
 ### Placement Groups
 
 - Sometimes you want control over the EC2 Instance placement strategy
 - That strategy can be defined using placement groups
 - When you create placement group, you specify one of the following strategies for the group:
-..- Cluster -- clusters instances into a low-latency group in a single Availability Zone
-..- Spread --spreads instances across underlying hardware (max 7 instances per group per AZ) -- critical applications
-..- Partition -- spreads instances across many different partitions (which rely on different sets of racks) with an AZ. Scales to 100s of EC2 instances per group (Hadoop, Cassandra, Kafka)
+  ..- Cluster -- clusters instances into a low-latency group in a single Availability Zone
+  ..- Spread --spreads instances across underlying hardware (max 7 instances per group per AZ) -- critical applications
+  ..- Partition -- spreads instances across many different partitions (which rely on different sets of racks) with an AZ. Scales to 100s of EC2 instances per group (Hadoop, Cassandra, Kafka)
 
 #### Cluster
+
 ```
   .-----------------------------------------------------.
   |                                                     |
@@ -341,11 +338,11 @@ This is the part in my knowledge that I least certain, and I want to understand 
 - Pros: Great network (10 Gbps bandwidth between instances)
 - Cons: If the rack fails, all instances fails at the same time
 - Use case:
-..- Big Data job that needs to complete fast
-..- Application that needs extremely low latency and high network throughput
-
+  ..- Big Data job that needs to complete fast
+  ..- Application that needs extremely low latency and high network throughput
 
 #### Spread
+
 ```
   .---------------------.     .---------------------.    .---------------------.
   |     us-east-1a      |     |     us-east-1b      |    |     us-east-1c      |
@@ -373,17 +370,19 @@ This is the part in my knowledge that I least certain, and I want to understand 
   '---------------------'     '---------------------'    '---------------------'
 
 ```
+
 - Pros:
-..- Can span across Availability Zones (AZ)
-..- Reduced risk in simultaneous failure
-..- EC2 Instances are on different physical hardware
+  ..- Can span across Availability Zones (AZ)
+  ..- Reduced risk in simultaneous failure
+  ..- EC2 Instances are on different physical hardware
 - Cons:
-..- Limited to 7 instances per AZ per placement group
+  ..- Limited to 7 instances per AZ per placement group
 - Use Case:
-..- Application that needs to maximize high availability
-..- Critical Applications where each istance must be isolated from failure from each other
+  ..- Application that needs to maximize high availability
+  ..- Critical Applications where each istance must be isolated from failure from each other
 
 #### Partition
+
 ```
   .-----------------------------------------.     .-------------------.
   |               us-east-1a                |     |     us-east-1b    |
@@ -414,6 +413,7 @@ This is the part in my knowledge that I least certain, and I want to understand 
   '-----------------------------------------'     '-------------------'
 
 ```
+
 - Up to 7 partitions per AZ
 - Can span across multiple AZs in the same region
 - Up to 100s of EC2 instances
@@ -423,15 +423,148 @@ This is the part in my knowledge that I least certain, and I want to understand 
 - Use cases: HDFS, HBase, Cassandra, Kafka
 
 ### Elastic Network Interfaces (ENI)
+
 - Logical component in a VPC that represents a **virtual network card**
 - The ENI can have the following attributes:
-..- Primary private Ipv4, one or more secondary IPv4
-..- One Elastic Ip (IPv4) per private Ipv4
-..- One Public IPv4
-..- One or more security groups
-..- A MAC Address
+  ..- Primary private Ipv4, one or more secondary IPv4
+  ..- One Elastic Ip (IPv4) per private Ipv4
+  ..- One Public IPv4
+  ..- One or more security groups
+  ..- A MAC Address
 
 - You can create ENI independently and attach them on the fly (move them) on EC2 instances for failover
 - Boudn to a specific availability zone (AZ)
 
+#### EC2 Hibernate
 
+- W eknow we can stop, terminate instances
+  ..- Stop -- the data on disk (EBS) is kept intact in the next start
+  ..- Terminate -- any EBS volumes (root) also set-up to be destroyed is lost
+
+- On start, the following happens:
+  ..- First start: The OS boots & The EC2 User Data script is run
+  ..- Following starts: The OS boots up
+  ..- Then your application starts, caches get warmed up, and that can take time
+
+- When **Hibernate**
+  ..- The in-memory (RAM) state is preserved
+  ..- The instance boot is much faster! ( The OS is not stopped/restarted)
+  ..- Under the hood: The RAM state is written to a file in the rot EBS volume
+  ..- The root EBS volume must be encrypted
+
+- Use cases:
+  ..- Long-running processing
+  ..- Saving the RAM state
+  ..- Services that take time to initialize
+
+Good to know
+
+- Supported Instance Families -- C3, C4, C5, i3, m3, m4, r3, r4, t2, t3, ...
+- Instance RAM size -- must be less than 150 GB.
+- Instance Size -- not supported for bare metal instances
+- AMI - Amazon Linux 2, Linux AMI, Ubuntu, ...
+- Root Volume -- must be EBS, encrypted, not instance store, and large
+- Available for On-Demand, Reserved and Spot instances
+
+- An instance can NOT be hibernated more than 60 days
+
+### EC2 Nitro
+
+- Underlying Platform for the next generation of EC2 instances
+- New virtualization technology
+- Allows for better performance:
+  ..- Better networking options (enhanced networking, HPC, IPv6)
+  ..- Higher Speed EBS (Nitro is necessary for 64,000 EBS IOPS -- max 32,000 on non-Nitro)
+- Better underlying security
+- Instance types example:
+  ..- Virtualized: A1, C5, C5a, C5ad, C5d, C5n, C6g, C6gd, D3,D3en, G4,I3en, infI, M5, M5a,M5d, M5dn,M5n,...
+  ..- Bare metail: a1.metal, c5.metal, c5d.metal, c5n.metal, c6.metal, c6gd,metal...
+
+### Understanding vCPU
+
+- Multiple threads can run on one CPU (multihreading)
+- Each thread is represented as a virtual CPU (vCPU)
+- Example: m5.2xlarge
+  ..- 4 CPU
+  ..- 2 threads per CPU
+  ..- => 8 vCPU in total
+
+### Optimizing CPU options
+
+- Ec2 instances come with a acombination of RAM and vCPU
+- But in some cases, you may want to chagne the vCPU options:
+  ..- # of CPU cores: you can decrease it (helpful if you need high RAM and low number of CPU) -- to decrease licensing costs
+  ..- # of threads per core: Disable multithreading to hvae 1 thread per CPu -- helpful for high performance computing (HPC) workloads
+- Only specified during instance launch
+
+### Capacity Reservations
+
+- Capacity Reservatoins ensure you have EC2 Capacity when needed
+- Manual or palnned end-date for the reservation
+- No need for 1 or 3 years commitment
+- Capacity access is immediate, you get billed as soon as it starts
+- Specify:
+  ..- The Availbility Zone in which to reserve the capacity (only one)
+  ..- The number of instnaces for which to reserve capacity
+  ..- The instance attributes, inclding the instance type, tenancy and platform/OS
+- Combine with Reserved Instances and Savings Plans to do cost saving
+
+### EBS Volume
+
+- An EBS (Elastic BLock Store) Volume is a netowrk drive you can attach to your istnaces while they run
+- It allows your instances to persist data, even after theri termination
+- They can only be mounted to one instance at a time ( at the CCP level )
+- They bound to a specific availability zone
+
+- Analogy: Think of them as a "network USB stick"
+- Free Tier: 30GB of free EBS storage of type General Purpose (SSD) or Magnetic per month
+
+- It's a network drive (i.e. Not a pysical drive)
+  ..- It uses the network to communicate the instance, which means there might be a bit of latency
+  ..- It can be detached from an EC2 instance and attached to another one quickly
+
+- It's locked to an Availability Zone (AZ)
+  ..- An EBS Volume in us-east-1a cannot be attached to us-east-1b
+  ..- To move a volume across, you first need to snapshot it
+
+- Have a provisioned capacity (size in GBs, and IOPS)
+  ..- You get billed for all the provisoned capacity
+  ..- You can increase the capacity of th drive over time
+
+- Controls the EBS behavior when an EC2 instance terminates
+  ..- By default, the root EBS volume is deleted (attribute enabled)
+  ..- By default, any other attached EBS volume is not deleted (attribute disabled)
+- This can be controlled by the AWS console / AWS CLI
+- Use Case: Preserve root volume when instnace is terminated
+
+### EBS Snapshots
+
+- Make a backup (snapshot) of your EBS volume at a point in time
+- Not necessary to detach volume to do snapshot, but remcommended
+- Can copy snapshots across AZ or Region
+
+- EBS snapshot Archive
+  ..- Move a snapshot to an "archive tier" that is 75% cheaper
+  ..- Takes within 24 to 72 hours for restroing the archive
+
+- Recycle Bin for EBS Snapshots
+  ..- Setup rules to retain deleted snapshots, so you can recover them after an accidental deleteion
+  ..- Specify retention (from 1 day to 1 year)
+
+### AMI (Amazon Machine Image)
+
+- AMI are a customization of an EC2 instance
+  ..- You add your own software, configuration, operating system, monitoring...
+  ..- Faster boot/configuration time because all your software is pre-packaged
+- AMI are build for a specific region (and can be copied across regions)
+- You can launch EC2 instances from:
+  ..- A public AMI: AWS provided
+  ..- Your own AMI: you make and maintian them yourself
+  ..- An AWS Marketplace AMI: an AMI someone else made (and potentially sells)
+
+#### AMI process (from an EC2 instance)
+
+- Start an EC2 instance and customize it
+- Stop the instance (for data integrity)
+- Build an AMI -- this will also create EBS snapshots
+- Launch instances from other AMIs
