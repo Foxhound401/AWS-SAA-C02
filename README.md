@@ -319,6 +319,7 @@ This is the part in my knowledge that I least certain, and I want to understand 
 ..- Spread --spreads instances across underlying hardware (max 7 instances per group per AZ) -- critical applications
 ..- Partition -- spreads instances across many different partitions (which rely on different sets of racks) with an AZ. Scales to 100s of EC2 instances per group (Hadoop, Cassandra, Kafka)
 
+#### Cluster
 ```
   .-----------------------------------------------------.
   |                                                     |
@@ -336,3 +337,101 @@ This is the part in my knowledge that I least certain, and I want to understand 
   |                                                     |
   '-----------------------------------------------------'
 ```
+
+- Pros: Great network (10 Gbps bandwidth between instances)
+- Cons: If the rack fails, all instances fails at the same time
+- Use case:
+..- Big Data job that needs to complete fast
+..- Application that needs extremely low latency and high network throughput
+
+
+#### Spread
+```
+  .---------------------.     .---------------------.    .---------------------.
+  |     us-east-1a      |     |     us-east-1b      |    |     us-east-1c      |
+  |                     |     |                     |    |                     |
+  |  .---------------.  |     |  .---------------.  |    |  .---------------.  |
+  |  | .-----------. |  |     |  | .-----------. |  |    |  | .-----------. |  |
+  |  | |           | |  |     |  | |           | |  |    |  | |           | |  |
+  |  | |    EC2    | |  |     |  | |    EC2    | |  |    |  | |    EC2    | |  |
+  |  | |           | |  |     |  | |           | |  |    |  | |           | |  |
+  |  | '-----------' |  |     |  | '-----------' |  |    |  | '-----------' |  |
+  |  |               |  |     |  |               |  |    |  |               |  |
+  |  |   Hardware 1  |  |     |  |   Hardware 3  |  |    |  |   Hardware 5  |  |
+  |  '---------------'  |     |  '---------------'  |    |  '---------------'  |
+  |                     |     |                     |    |                     |
+  |  .---------------.  |     |  .---------------.  |    |  .---------------.  |
+  |  | .-----------. |  |     |  | .-----------. |  |    |  | .-----------. |  |
+  |  | |           | |  |     |  | |           | |  |    |  | |           | |  |
+  |  | |    EC2    | |  |     |  | |    EC2    | |  |    |  | |    EC2    | |  |
+  |  | |           | |  |     |  | |           | |  |    |  | |           | |  |
+  |  | '-----------' |  |     |  | '-----------' |  |    |  | '-----------' |  |
+  |  |               |  |     |  |               |  |    |  |               |  |
+  |  |   Hardware 2  |  |     |  |   Hardware 4  |  |    |  |   Hardware 6  |  |
+  |  '---------------'  |     |  '---------------'  |    |  '---------------'  |
+  |                     |     |                     |    |                     |
+  '---------------------'     '---------------------'    '---------------------'
+
+```
+- Pros:
+..- Can span across Availability Zones (AZ)
+..- Reduced risk in simultaneous failure
+..- EC2 Instances are on different physical hardware
+- Cons:
+..- Limited to 7 instances per AZ per placement group
+- Use Case:
+..- Application that needs to maximize high availability
+..- Critical Applications where each istance must be isolated from failure from each other
+
+#### Partition
+```
+  .-----------------------------------------.     .-------------------.
+  |               us-east-1a                |     |     us-east-1b    |
+  |   .-------------.    .-------------.    |     |  .-------------.  |
+  |   | .---------. |    | .---------. |    |     |  | .---------. |  |
+  |   | |         | |    | |         | |    |     |  | |         | |  |
+  |   | |   EC2   | |    | |   EC2   | |    |     |  | |   EC2   | |  |
+  |   | |         | |    | |         | |    |     |  | |         | |  |
+  |   | '---------' |    | '---------' |    |     |  | '---------' |  |
+  |   | .---------. |    | .---------. |    |     |  | .---------. |  |
+  |   | |         | |    | |         | |    |     |  | |         | |  |
+  |   | |   EC2   | |    | |   EC2   | |    |     |  | |   EC2   | |  |
+  |   | |         | |    | |         | |    |     |  | |         | |  |
+  |   | '---------' |    | '---------' |    |     |  | '---------' |  |
+  |   | .---------. |    | .---------. |    |     |  | .---------. |  |
+  |   | |         | |    | |         | |    |     |  | |         | |  |
+  |   | |   EC2   | |    | |   EC2   | |    |     |  | |   EC2   | |  |
+  |   | |         | |    | |         | |    |     |  | |         | |  |
+  |   | '---------' |    | '---------' |    |     |  | '---------' |  |
+  |   | .---------. |    | .---------. |    |     |  | .---------. |  |
+  |   | |         | |    | |         | |    |     |  | |         | |  |
+  |   | |   EC2   | |    | |   EC2   | |    |     |  | |   EC2   | |  |
+  |   | |         | |    | |         | |    |     |  | |         | |  |
+  |   | '---------' |    | '---------' |    |     |  | '---------' |  |
+  |   |             |    |             |    |     |  |             |  |
+  |   | Partition 3 |    | Partition 3 |    |     |  | Partition 3 |  |
+  |   '-------------'    '-------------'    |     |  '-------------'  |
+  '-----------------------------------------'     '-------------------'
+
+```
+- Up to 7 partitions per AZ
+- Can span across multiple AZs in the same region
+- Up to 100s of EC2 instances
+- The instances in a partition do not share racks with the instances in the other partitions
+- A partition failure can affect many EC2 but won't affect other partitions
+- EC2 instances get access to the partition information as metadata
+- Use cases: HDFS, HBase, Cassandra, Kafka
+
+### Elastic Network Interfaces (ENI)
+- Logical component in a VPC that represents a **virtual network card**
+- The ENI can have the following attributes:
+..- Primary private Ipv4, one or more secondary IPv4
+..- One Elastic Ip (IPv4) per private Ipv4
+..- One Public IPv4
+..- One or more security groups
+..- A MAC Address
+
+- You can create ENI independently and attach them on the fly (move them) on EC2 instances for failover
+- Boudn to a specific availability zone (AZ)
+
+
