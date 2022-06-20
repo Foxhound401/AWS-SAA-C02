@@ -614,4 +614,93 @@ Good to know
   ..- Baseline of 3,000 IOPS and througput of 125 MiB/s
   ..- Can increase IOPS up to 16,000 and throughput up to 1000 MiB/s independently
 - gp2:
-  ..- 
+  ..- Small gp2 volumes can burst IOPS to 3,000
+  ..- Size of the volume and IOPS are linked, max IOPS is 16,000
+  ..- 3 IOPS per GB, means at 5,334 GB we are at the max IOPS
+
+#### Provisioned IOPS (PIOPS) SSD
+- Critical business applications with sustained IOPS performance
+- Or applications that need more than 16,000 IOPS
+- Great for databases workloads (sensitive to storage perf and consistency)
+- io1/io2 (4 GiB - 16 TiB)
+..- Max PIOPS: 64,000 for Nitro EC2 instances & 32,000 for other
+..- Can increase PIOPS independently of storage size
+..- io2 have more durability and more IOPS per GiB (at the same price as io1)
+- io2 Block Express (4 GiB - 64 TiB):
+..- Sub-milisecond latency
+..- Max PIOPS: 256,000 with an IOPS:GiB ratio of 1,000:1
+- Supports EBS multi-attach
+
+#### Hark Disk Drives (HDD)
+- Cannot be a boot volume
+- 125 MiB to 16 TiB
+- Throughput Optimized HDD (st1)
+..- Big Data, Data Warehouses, Log Processing
+..- Max throughput 500 MiB/s - max IOPS 500
+- Cold HDD (sc1):
+..- For data that is infrequently accessed
+..- Scenarios  where the lowest cost is important
+..- Max throughput 250 MiB/s - max IOPS 250
+
+
+#### EBS Multi-Attach -- io1/io2 family
+- Attach the same EBS volume to multiple EC2 instances in the same AZ
+- Each instance has full read & write permissions to the volume
+- Use Case:
+..- Achieve higher application availability in clustered Linux applications (ex: Teradata)
+..- Must use a file system that's cluster-aware (not XFS, EX4, etc...)
+
+#### EBS Encyption
+- When you create an encrypted EBS volume, you get the following:
+..- Data at rest is encrypted inside the volume
+..- All the data in flight moving between the instance and the volume in encrypted
+..- All snapshots are encrypted
+..- All volumes created from the snapshot is encrypted
+- Encryption and decryption are handled transparently (you have nothing to do)
+- Encryption has a minimal impact on latency
+- EBS encryption leverages keys from KMS (AES-256)
+- Snapshots of encrypted volumes are encrypted
+
+#### Encryption: encrypt an unencrypted EBS volume
+- Create an EBS snapshot of the volume
+- Encrypt the EBS snapshot (using copy)
+- Create new ebs volume from the snapshot (the volume will also be encrypted)
+- Now you can attach the encrypted volume to the original instance
+
+#### EFS - Elastic File System
+- Managed NFS (network file system) that can be mounted on many EC2
+- EFS workds with EC2 instances in multi-AZ
+- Highly available, scalable, expensive (3x gp2), pay per use
+
+- Use cases: content management, web serving, data sharing, Wordpress
+- Use NFSv4.1 protocol
+- USes security group to control access to EFS
+- Compatible with Linux Based AMI (not Windows)
+- Encryption at rest using KMS
+
+- POSIX file system (~Linux) that has a standard file API
+- File system scales automatically, pay-per-use, no capacity planning
+
+- EFS Scale
+..- 1000s of concurrent NFS clients, 10 GB+ /s throughput
+..- Grow to Petabyte-scale network file system, automatically
+
+- Performance mode (set at EFS creation time)
+..- General purpose (default): latency-sensitive use cases (web server, CMS, etc...)
+..- Max I/O -- higher latency, througput, highly parallel (big data, media processing)
+
+- Throughput mode
+..- Bursting (1TB = 50MiB/s + burst of up to 100MiB/s)
+..- Provisioned: set your throughput regardless of storage size, ex: 1GiB/s for 1TB storage
+
+##### Storage Classes
+
+- Storage Tiers (lifecycle management feature -- move file after N days)
+..- Standard: for frequently accessed files
+..- Infrquent access (EFS-IA): cost to retrieve files, lower price to store. Enable EFS-IA 
+with a Lifecycle Policy
+- Availability and durability
+..- Regional: Multi-AZ, great for prod
+..- One Zone: One AZ, great for dev, backup enabled by default , compatible with IA (EFS One Zone-IA)
+
+- Over 90% in cost savings
