@@ -20,7 +20,9 @@ NAT gateway if don't know how to use will cost you fortune on aws
   => then why the heck you want it in one month. \(T^T)/
 
 Enough rambling here's the Index
+
 ## Table of Contents - inprogress
+
 - <a href="#iam">IAM</a>
 
 ## IAM
@@ -607,6 +609,7 @@ Good to know
 - Only gp2/gp3 and io1/io2 can be used as boot volumes
 
 #### General Purpose SSd (gp2/gp3)
+
 - Cost effective storage, low-latency
 - System boot volumes, Virtual desktops, Development and test environments
 - 1 GiB - 16 TiB
@@ -619,55 +622,60 @@ Good to know
   ..- 3 IOPS per GB, means at 5,334 GB we are at the max IOPS
 
 #### Provisioned IOPS (PIOPS) SSD
+
 - Critical business applications with sustained IOPS performance
 - Or applications that need more than 16,000 IOPS
 - Great for databases workloads (sensitive to storage perf and consistency)
 - io1/io2 (4 GiB - 16 TiB)
-..- Max PIOPS: 64,000 for Nitro EC2 instances & 32,000 for other
-..- Can increase PIOPS independently of storage size
-..- io2 have more durability and more IOPS per GiB (at the same price as io1)
+  ..- Max PIOPS: 64,000 for Nitro EC2 instances & 32,000 for other
+  ..- Can increase PIOPS independently of storage size
+  ..- io2 have more durability and more IOPS per GiB (at the same price as io1)
 - io2 Block Express (4 GiB - 64 TiB):
-..- Sub-milisecond latency
-..- Max PIOPS: 256,000 with an IOPS:GiB ratio of 1,000:1
+  ..- Sub-milisecond latency
+  ..- Max PIOPS: 256,000 with an IOPS:GiB ratio of 1,000:1
 - Supports EBS multi-attach
 
 #### Hark Disk Drives (HDD)
+
 - Cannot be a boot volume
 - 125 MiB to 16 TiB
 - Throughput Optimized HDD (st1)
-..- Big Data, Data Warehouses, Log Processing
-..- Max throughput 500 MiB/s - max IOPS 500
+  ..- Big Data, Data Warehouses, Log Processing
+  ..- Max throughput 500 MiB/s - max IOPS 500
 - Cold HDD (sc1):
-..- For data that is infrequently accessed
-..- Scenarios  where the lowest cost is important
-..- Max throughput 250 MiB/s - max IOPS 250
-
+  ..- For data that is infrequently accessed
+  ..- Scenarios where the lowest cost is important
+  ..- Max throughput 250 MiB/s - max IOPS 250
 
 #### EBS Multi-Attach -- io1/io2 family
+
 - Attach the same EBS volume to multiple EC2 instances in the same AZ
 - Each instance has full read & write permissions to the volume
 - Use Case:
-..- Achieve higher application availability in clustered Linux applications (ex: Teradata)
-..- Must use a file system that's cluster-aware (not XFS, EX4, etc...)
+  ..- Achieve higher application availability in clustered Linux applications (ex: Teradata)
+  ..- Must use a file system that's cluster-aware (not XFS, EX4, etc...)
 
 #### EBS Encyption
+
 - When you create an encrypted EBS volume, you get the following:
-..- Data at rest is encrypted inside the volume
-..- All the data in flight moving between the instance and the volume in encrypted
-..- All snapshots are encrypted
-..- All volumes created from the snapshot is encrypted
+  ..- Data at rest is encrypted inside the volume
+  ..- All the data in flight moving between the instance and the volume in encrypted
+  ..- All snapshots are encrypted
+  ..- All volumes created from the snapshot is encrypted
 - Encryption and decryption are handled transparently (you have nothing to do)
 - Encryption has a minimal impact on latency
 - EBS encryption leverages keys from KMS (AES-256)
 - Snapshots of encrypted volumes are encrypted
 
 #### Encryption: encrypt an unencrypted EBS volume
+
 - Create an EBS snapshot of the volume
 - Encrypt the EBS snapshot (using copy)
 - Create new ebs volume from the snapshot (the volume will also be encrypted)
 - Now you can attach the encrypted volume to the original instance
 
 #### EFS - Elastic File System
+
 - Managed NFS (network file system) that can be mounted on many EC2
 - EFS workds with EC2 instances in multi-AZ
 - Highly available, scalable, expensive (3x gp2), pay per use
@@ -682,25 +690,111 @@ Good to know
 - File system scales automatically, pay-per-use, no capacity planning
 
 - EFS Scale
-..- 1000s of concurrent NFS clients, 10 GB+ /s throughput
-..- Grow to Petabyte-scale network file system, automatically
+  ..- 1000s of concurrent NFS clients, 10 GB+ /s throughput
+  ..- Grow to Petabyte-scale network file system, automatically
 
 - Performance mode (set at EFS creation time)
-..- General purpose (default): latency-sensitive use cases (web server, CMS, etc...)
-..- Max I/O -- higher latency, througput, highly parallel (big data, media processing)
+  ..- General purpose (default): latency-sensitive use cases (web server, CMS, etc...)
+  ..- Max I/O -- higher latency, througput, highly parallel (big data, media processing)
 
 - Throughput mode
-..- Bursting (1TB = 50MiB/s + burst of up to 100MiB/s)
-..- Provisioned: set your throughput regardless of storage size, ex: 1GiB/s for 1TB storage
+  ..- Bursting (1TB = 50MiB/s + burst of up to 100MiB/s)
+  ..- Provisioned: set your throughput regardless of storage size, ex: 1GiB/s for 1TB storage
 
 ##### Storage Classes
 
 - Storage Tiers (lifecycle management feature -- move file after N days)
-..- Standard: for frequently accessed files
-..- Infrquent access (EFS-IA): cost to retrieve files, lower price to store. Enable EFS-IA 
-with a Lifecycle Policy
+  ..- Standard: for frequently accessed files
+  ..- Infrquent access (EFS-IA): cost to retrieve files, lower price to store. Enable EFS-IA
+  with a Lifecycle Policy
 - Availability and durability
-..- Regional: Multi-AZ, great for prod
-..- One Zone: One AZ, great for dev, backup enabled by default , compatible with IA (EFS One Zone-IA)
+  ..- Regional: Multi-AZ, great for prod
+  ..- One Zone: One AZ, great for dev, backup enabled by default , compatible with IA (EFS One Zone-IA)
 
 - Over 90% in cost savings
+
+## Scalability & High Availabilty
+
+### Load balancing
+
+- Load balancers are servers that forward traffic to multiple servesr (e.g., EC2 instances) downstream
+
+#### Why use a load balancer ?
+
+- Spread load across multiple downstream instances
+- Expose a single point of access (DNS) to your application
+- Seamlessly handle failures of downstream instances
+- Do regular health checks to your instances
+- Provide SSL termination (HTTPS) for your websites
+- Enforce stickiness with cookies
+- Enforce stickiness with cookies
+- High availability across Zones
+- Separate public traffic from private traffic
+
+#### Why use Elastic Load Balancer?
+
+- An Elastic Load Balancer is a managed load balancer
+  ..- AWS guarantees that it will be working
+  ..- AWS takes care of upgrades, maintenance, high Availability
+  ..- AWS provides only a few configuration knobs
+- It costs less to setup your own load balancer but it will be a lot more effort on your end
+- It is integrated with many AWS offerings / services
+  ..- EC2, EC2 Auto Scaling Groups, Amazon ECS
+
+#### Health checks
+
+- Health CHecks are crucial for Load Blancers
+- THey enable the load balancer to know if instances it forwards traffic to are available to reply to requests
+- The health check is done on a port and route (/health is common)
+- If the response is not 200(OK), then the instance is unhealthy
+
+#### Types of load balancer on AWS
+
+- AWS has 4 kinds oif managed Load Balancers
+- Classic Load Balancer (v1 - old generation) -- 2009 -- CLB
+  ..- HTTP, HTTPS, TCP, SSL (secure TCP)
+- Application Load Balancer (v2 - new generation) -- 2016 -- ALB
+  ..- HTTP, HTTPS, WebSocket
+- Network Load Balancer (v2 - new generation) -- 2017 -- NLB
+  ..- TCP, TLS (Secure TCP), UDP
+- Gateway Load Balancer -- 2020 -- GWLB
+  ..- Operates at layer 3 (Network layer) -- IP Protocol
+
+- Over all, it is recommended to use the newer generation load balancers as they
+  provide more features
+- Some load balancers can be setup as internal (private) or external (public) ELBs
+
+### Classic Load Balancer (v1)
+
+- Supports TCP (layer 4), HTTP & HTTPS (layer 7)
+- Health checks are TCP or HTTP based
+- Fixed Hostname xxx.regin.elb.amazonaws.com
+
+### Application Load Balancer (v2)
+
+- Application load balancers is layer 7 (HTTP)
+- Load balancing to multiple HTTP applicatins across machines (target groups)
+- Support for HTTP/2 and WebSocket
+- Support redirects (from HTTP to HTTPS for example)
+- Routing tables to different target groups:
+  ..- Routing based on path in URL (example.com/users & example.com/posts)
+  ..- Routing based on hostname in URL (one.example.com & other.example.com)
+  ..- Routing based on Query String, Headers (example.com/users?id=123&order=fase)
+
+- ALB are a great fit for micro services & container-based application (Example: Docker & Amazon ECS)
+- Has a port mapping feature to redirect to a dynamic port in ECS
+- In comparison, we'd need multiple Classic Load Balancer per application
+
+#### Target Groups
+
+- Ec2 instances (can be managed by an Auto Scaling Group) -- HTTP
+- ECS tasks (managed by ECS itself) -- HTTP
+- Lambda functions -- HTTP request is translated into a JSON event
+- IP Addresses -- must be private IPs
+- ALB can route to multiple target groups
+- Health checks are at the group level
+
+- Fixed hostname (xxx.region.elb.amazonaws.com)
+- The aplication servers don't see the IP of the client directly
+  ..- The true IP of the client is inserted int he header **X-Forwarded-For**
+  ..- We can also get Port (**X-Forwarded-Port**) and proto (**X-Forwarded-Proto**)
