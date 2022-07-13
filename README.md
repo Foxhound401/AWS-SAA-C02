@@ -950,3 +950,72 @@ TODO: Draw diagram here
 - Between 1 and 3600 seconds ( default: 300 seconds )
 - Can be disabled ( set value to 0 )
 - Set to a low value if your requests are short
+
+#### Auto Scaling Group attribute
+
+- A launch Template (older "Launch Configurations" are deprecated)
+  ..- AMI + INstance Type
+  ..- EC2 User data
+  ..- EBS Volumes
+  ..- Security Groups
+  ..- SSH Key Pair
+  ..- IAM Roles for your EC2 Instances
+  ..- Network + Subnets Information
+- Min Size / Max Size / Initial Capacity
+- Scaling Policies
+
+#### Auto Scaling Groups - Dynamic Scaling Policies
+
+- Target Tracking Scaling
+  ..- Most simple and easy to set-up
+  ..- Example: I want the average ASG CPU to stay at around 40%
+- Simple / Step Scaling
+  ..- When a Cloudwatch alarm is triggered (example CPU > 70%), then add 2 units
+  ..- When a Cloudwatch alarm is triggered (example CPU < 30%), then remove 1
+- Scheduled Actions
+  ..- Anticipate a scaling on known usage patterns
+  ..- Example: Increase the min capacity to 10 at 5 pm on Fridays
+
+#### Autoscaling Groups - Predictive Scaling
+
+- Predictive scaling: continuously forecast load and schedule scaling ahead
+
+#### Good metrics to scale on
+
+- CPUUtilization: Average CPU
+  ..- Utilization across your instances
+- RequestCountPerTarget: To make sure the number of requests per EC2 instances is stable
+- Averate Netowrk In/Out (if your application is network bound)
+- Any custom metric (that you push using CloudWatch)
+
+#### Auto Scaling Groups - Scaling Cooldowns
+
+```
+                         .----------------.
+                         | Scaling Action |
+                         | Occurs         |
+                         '----------------'
+                                  |
+                                  |
+                                  |
+                                  v
+ .-------------.           .------------.
+ | Launch or   |    No    / Default      \
+ | Terminate   |<--------(  Cooldown      )
+ | Instance    |          \ in effect ?  /
+ '-------------'           '------------'
+                                  |
+                                  |
+                              Yes |
+                                  |
+                                  v
+                          .---------------.
+                          | Ignore Action |
+                          |               |
+                          '---------------'
+
+```
+
+- After a scaling activity happens, you are in the cooldown period (default 300 seconds)
+- During the cooldown period, the ASG will not launch oir terminate additional instances ( to allow for metrics to stabilize )
+- Advice: Use a ready-to-use AMI to reduce configuration time in order to be serving request fasters and reduce the cooldown period
