@@ -1,5 +1,3 @@
-# AWS-SAA-C02 study notes
-
 Goal: I want to get the cert in one month
 
 - I have experience with AWS, and have access to resources to test and do hand-on
@@ -920,3 +918,35 @@ TODO: Draw diagram here
 - Network Load Balancer (v2)
   ..- Supports multiple listeners with multiple SSL certificates
   ..- Uses Server Name indication (SNI) to make it work
+
+#### Connection Draining
+
+```
+
+
+        Wait for existing
+        connections to complete--.
+                  .--------| EC2 |
+                  |        '-----'
+                  |        Draining
+                  v
+.-------.----->.-----.     .-----.
+| Users |----->| ELB |---->| EC2 |
+'-------'----->'-----'     '-----'
+                  |
+                  |
+                  |        .-----.
+                  '------->| EC2 |
+                           '-----'
+
+```
+
+- Feature Naming
+  ..- Connection Draining - for CLB
+  ..- Deregistration Draining - for ALB & NLB
+
+- Time to complete "in-flight requests" while the instance is de-registering oir unhealthy
+- Stops sending new requests to the EC2 instance which is de-registering
+- Between 1 and 3600 seconds ( default: 300 seconds )
+- Can be disabled ( set value to 0 )
+- Set to a low value if your requests are short
